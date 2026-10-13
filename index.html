@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Safari Video + Audio Merger</title><style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f3f6fb;color:#192941}*{box-sizing:border-box}body{margin:0}.wrap{max-width:860px;margin:34px auto;padding:0 18px}main{background:white;border-radius:17px;padding:28px;box-shadow:0 5px 30px #20345112}h1{font-size:29px;margin:0 0 10px}p{line-height:1.55}label{display:block;font-weight:650;margin:20px 0 8px}input[type=file]{width:100%;border:1px solid #cbd6e9;border-radius:10px;padding:15px;background:#f9fbff}button{cursor:pointer;background:#1457b9;color:white;padding:12px 18px;border:0;border-radius:9px;font-weight:650;font-size:15px;margin:8px 8px 8px 0}button:disabled{background:#9eaec5;cursor:not-allowed}.secondary{background:#344767}.note{background:#fff1d5;padding:16px;border-radius:10px}.status{padding:12px 15px;background:#eaf0fa;border-radius:9px;margin-top:16px}progress{width:100%;height:13px;margin:12px 0}pre{background:#142135;color:#e9f1fc;border-radius:10px;padding:15px;max-height:330px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}small{color:#465978}.small{font-size:13px}a{color:#1457b9}
+</style></head><body><div class="wrap"><main>
+<h1>Safari Video + Audio Merger <small>v2.4</small></h1><p>Merge the two files you already downloaded for recording <strong>6923750</strong>. Everything is processed in this browser tab. Your media is <strong>not uploaded</strong> to GitHub or a remote service.</p>
+<div class="note"><strong>Important:</strong> This web app needs to be published on HTTPS (such as GitHub Pages). Opening <code>index.html</code> as a local file will not work. Processing ~455 MiB may exhaust Safari memory; keep the source files.</div>
+<label for="video">1. Video-only MP4</label><input id="video" type="file" accept=".mp4,.m4s,video/mp4" />
+<label for="audio">2. Audio-only MP4</label><input id="audio" type="file" accept=".mp4,.m4s,audio/mp4" />
+<p class="small">Expected source sizes: approximately 349 MiB video and 106 MiB audio. Select tracks from the same recording.</p>
+<button id="test">Test engine</button><button id="merge">Combine into MP4</button><button id="copy" class="secondary">Copy diagnostic log</button>
+<progress id="progress" value="0" max="100"></progress>
+<div id="status" class="status" role="status">Ready to test the engine.</div>
+<h2>Diagnostic log</h2><pre id="log">Ready.</pre>
+<p class="small">Video and audio are copied without re-encoding, using FFmpeg.wasm's single-thread core. Output should be an MP4 when streams are compatible. This build is unverified on your Safari version.</p>
+</main></div><script type="module" src="/src/main.js"></script></body></html>
