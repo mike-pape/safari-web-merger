@@ -1,24 +1,34 @@
-# Safari Video + Audio Merger v2.4
+# Safari Media Grabber v4.0 — unified HLS + YouTube
 
-A same-origin ESM-worker FFmpeg.wasm web app for merging **already downloaded**, matching MP4 video and audio tracks. The input files stay in your Safari tab; GitHub only hosts the webpage code.
+This package extends the proven v3.2 Safari HLS downloader and browser-side FFmpeg muxer, and adds a **private server-side YouTube extraction service**. Safari remains the only software you need to operate on your Mac. The server must be deployed separately: GitHub Pages cannot run Python or yt-dlp.
 
-## Publish using Safari and GitHub Pages (no Xcode or Terminal)
+## One web address (recommended): Render
 
-GitHub Pages cannot run `npm install` itself. This project includes a GitHub Actions workflow to build and deploy the site on each push to `main`.
+1. Put this complete project in your existing GitHub repository `safari-web-merger`, keeping folders `.github/workflows`, `src`, `scripts`, and `backend` intact. If GitHub's web uploader flattens directories, use **Add file → Create new file** with paths such as `backend/app.py`, and paste the file contents. Keep `src/main.js` in `src/`. Do not upload this ZIP into the repository as one file.
+2. Visit https://dashboard.render.com/ and create a **New → Web Service** connected to that GitHub repository. (If using a Render Blueprint, its `render.yaml` defines the same Docker service.) Choose **Docker** runtime, repository root `/`, and a paid tier with sufficient CPU, memory, disk, and bandwidth for long videos. Pricing/limits depend on your Render account.
+3. In Render's **Environment** settings, set `GRABBER_API_KEY` to a long random private secret. For Blueprints using `generateValue`, Render can generate the value; reveal/copy it from Render Environment. **Do not put the key into GitHub files.** If you change environment variables, redeploy the service.
+4. Deploy the service and visit the HTTPS link supplied by Render. The same page includes **YouTube** and the original **HLS/Network import/FFmpeg** tools.
+5. Paste the private key into the page, enter a *single YouTube watch URL*, select quality, click **Check YouTube video**, then **Prepare downloadable file**. The server uses yt-dlp + Deno + FFmpeg and offers a temporary file download when ready.
 
-1. Sign in to github.com and create a **new public repository**, e.g. `safari-web-merger`, with a README if GitHub requires one. Public is simplest for GitHub Pages on Free accounts.
-2. Upload **the contents of this extracted folder** to the repository, preserving folders, including `.github/workflows/deploy.yml`. If Safari's file picker hides the `.github` directory, use the GitHub web editor to create `.github/workflows/deploy.yml` using the supplied file's text. Do **not** upload the ZIP as a single file.
-3. Open repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. Open the **Actions** tab. Run or wait for **Publish Safari Merger**. The workflow installs NPM dependencies on GitHub's build runner, copies the actual FFmpeg ESM worker+core files, builds the site, and deploys it.
-5. Once deployed, GitHub Pages shows the URL, usually `https://YOURUSERNAME.github.io/safari-web-merger/`.
-6. Open that URL in Safari. Click **Test engine** before selecting files. Then choose your saved `webinar-6923750-video-only.mp4` and `webinar-6923750-audio-only.mp4`, click **Combine into MP4**.
+You can keep your existing GitHub Pages site for HLS-only tasks. If you use the GitHub Pages front end instead of the Render site, enter the Render HTTPS origin under **Extraction service URL**, but note: cross-origin browser requests are not enabled by this package. **Use the Render-hosted URL** for the unified experience.
 
-## Limitations and privacy
+## Safety and privacy
 
-- **Never open `index.html` directly** with `file://`; the app needs an HTTPS origin for module workers.
-- This is a **single-thread** core. No COOP/COEP headers or SharedArrayBuffer are required.
-- Safari may run out of memory when muxing ~455 MiB of input and producing a similarly sized output. There is no guarantee of success for files this large.
-- This is an **unverified build**: package syntax and assets paths can be checked here, but the complete GitHub Actions build and Safari execution require publishing and testing.
-- The app only reads local files using the File API and processes them with FFmpeg in Safari. No upload API is included.
-- Only process recordings you are authorized to save.
-- If the site returns 404 for the FFmpeg files, inspect the GitHub Actions logs and confirm all assets were copied into `dist/ffmpeg/`.
+- Only download videos you own or have permission to save. This utility does not bypass DRM or promise access to private, subscription-only or geographically restricted content.
+- The YouTube video URL goes to your own Render server, which temporarily stores the downloaded video. Unlike the HLS section, the YouTube path is not processed solely in Safari.
+- The API key is kept in the browser tab's memory; never put it in the URL or GitHub. The download link itself uses a random, short-lived capability ID—do not share it.
+- This is for **personal use**. It is not a hardened public download service. Keep the API key private, monitor usage, and disable the Render service when not in use. Render services may incur hosting, storage, and network-transfer charges.
+- A YouTube backend can still fail when YouTube changes its playback requirements, restricts servers/datacenter IPs, or requires login. yt-dlp is not a guaranteed universal solution; keep dependencies updated.
+- Live streams, playlists, videos longer than 3 hours, and files over the configured 1.5 GiB limit are not supported. Only one job may run at a time; output expires after about an hour or a service restart.
+
+## Technical overview
+
+- Frontend: existing Vite + FFmpeg.wasm HLS v3.2, extended with YouTube panel.
+- Server: Python FastAPI, yt-dlp[default], FFmpeg, Deno 2.5.6, packaged via multi-stage Dockerfile.
+- API: `GET /api/health`, `POST /api/youtube/info`, `POST /api/youtube/jobs`, `GET /api/youtube/jobs/{id}`, `GET /api/youtube/files/{id}`. Private key required for the first three endpoints that expose a video or create jobs; file URLs are unguessable temporary capabilities.
+- Supports browser-based video/audio file combining for normal accessible HLS playlists, independently of the YouTube server.
+- The old GitHub Pages deployment workflow remains available and still builds the static frontend, but does not deploy the Docker backend.
+
+## Build/testing status
+
+The JavaScript and Python syntax have been checked locally. A complete npm/Docker build and a real YouTube download **have not been verified** in this environment. Verify on your Render URL with a short public video you may save before using large videos. When encountering an error, copy the page error and relevant Render application logs (redact your API key).
