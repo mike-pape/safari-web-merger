@@ -1,1 +1,0 @@
-{"name":"safari-media-grabber","version":"3.0.0","private":true,"type":"module","scripts":{"prepare-assets":"node scripts/copy-assets.mjs","build":"npm run prepare-assets && vite build"},"dependencies":{"@ffmpeg/ffmpeg":"0.12.15","@ffmpeg/core":"0.12.10"},"devDependencies":{"vite":"^6.3.0"}}
